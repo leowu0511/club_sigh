@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資訊研究社社團簽到系統</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            margin-top: 50px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        input {
+            padding: 10px;
+            margin: 10px 0;
+            width: 80%;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+        .admin-link {
+            margin-top: 30px;
+            font-size: 14px;
+        }
+        .admin-link a {
+            color: #666;
+            text-decoration: none;
+        }
+        .admin-link a:hover {
+            text-decoration: underline;
+        }
+        .logout-link {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-link">
+        <a href="/logout">登出</a>
+    </div>
+
+    <div class="container">
+        <h1>資訊研究社社團簽到系統</h1>
+        <form id="signinForm">
+            <input type="text" id="student_id" name="student_id" placeholder="請輸入學號" required>
+            <br>
+            <input type="text" id="name" name="name" placeholder="請輸入姓名" required>
+            <br>
+            <button type="submit">簽到</button>
+        </form>
+        <div id="message" class="message" style="display:none;"></div>
+        
+        <div class="admin-link">
+            <a href="/admin">管理頁面</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const student_id = document.getElementById('student_id').value;
+            const name = document.getElementById('name').value;
+            
+            if (!student_id || !name) {
+                showMessage('請填寫學號和姓名', 'error');
+                return;
+            }
+            
+            fetch('/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `student_id=${encodeURIComponent(student_id)}&name=${encodeURIComponent(name)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    // 若未驗證，重定向到首頁
+                    window.location.href = '/';
+                    return;
+                }
+                
+                if (data.message.includes('成功')) {
+                    showMessage(data.message, 'success');
+                    // 成功後清空表單
+                    document.getElementById('signinForm').reset();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('簽到失敗，請稍後再試', 'error');
+            });
+        });
+        
+        function showMessage(text, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.innerText = text;
+            messageElement.className = `message ${type}`;
+            messageElement.style.display = 'block';
+            
+            // 3秒後自動隱藏訊息 (如果不是驗證錯誤)
+            if (!text.includes('請先輸入驗證碼')) {
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
