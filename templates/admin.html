@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資訊研究社社團簽到系統 - 管理頁面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .today {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .count {
+            margin-top: 20px;
+            text-align: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>資訊研究社社團簽到系統 - 管理頁面</h1>
+    
+    <div class="today">今日日期: <span id="today"></span></div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>序號</th>
+                <th>學號</th>
+                <th>姓名</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student_id, name in signins.items() %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ student_id }}</td>
+                <td>{{ name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="count">總計簽到人數: {{ signins|length }} 人</div>
+    
+    <script>
+        // 顯示今天日期
+        const today = new Date();
+        document.getElementById('today').innerText = today.toLocaleDateString('zh-TW');
+    </script>
+</body>
+</html>
